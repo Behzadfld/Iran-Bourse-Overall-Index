@@ -1,0 +1,7 @@
+SELECT TOP 10
+    DTYYYYMMDD,
+    CAST([CLOSE] AS DECIMAL(10,2))
+      - LAG(CAST([CLOSE] AS DECIMAL(10,2)))
+        OVER (ORDER BY DTYYYYMMDD) AS DailyChange
+FROM Overall_Index
+ORDER BY DailyChange DESC;

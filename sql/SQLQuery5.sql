@@ -1,0 +1,32 @@
+WITH MovingAverages AS (
+    SELECT
+        DTYYYYMMDD,
+        AVG(CAST([CLOSE] AS DECIMAL(10,2)))
+            OVER (ORDER BY DTYYYYMMDD ROWS BETWEEN 19 PRECEDING AND CURRENT ROW) AS MA20,
+        AVG(CAST([CLOSE] AS DECIMAL(10,2)))
+            OVER (ORDER BY DTYYYYMMDD ROWS BETWEEN 49 PRECEDING AND CURRENT ROW) AS MA50
+    FROM Overall_Index
+),
+CrossPoints AS (
+    SELECT
+        DTYYYYMMDD,
+        MA20,
+        MA50,
+        LAG(MA20) OVER (ORDER BY DTYYYYMMDD) AS PrevMA20,
+        LAG(MA50) OVER (ORDER BY DTYYYYMMDD) AS PrevMA50
+    FROM MovingAverages
+)
+SELECT
+    DTYYYYMMDD,
+    MA20,
+    MA50,
+    CASE
+        WHEN MA20 > MA50 AND PrevMA20 <= PrevMA50 THEN 'Bullish Breakout'
+        WHEN MA20 < MA50 AND PrevMA20 >= PrevMA50 THEN 'Bearish Breakout'
+    END AS Breakout_Type
+FROM CrossPoints
+WHERE
+    (MA20 > MA50 AND PrevMA20 <= PrevMA50)
+    OR
+    (MA20 < MA50 AND PrevMA20 >= PrevMA50)
+ORDER BY DTYYYYMMDD;

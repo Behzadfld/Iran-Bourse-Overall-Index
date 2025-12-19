@@ -1,0 +1,12 @@
+SELECT
+    DTYYYYMMDD,
+    (
+        CAST([CLOSE] AS DECIMAL(10,2))
+        - LAG(CAST([CLOSE] AS DECIMAL(10,2)))
+          OVER (ORDER BY DTYYYYMMDD)
+    )
+    / LAG(CAST([CLOSE] AS DECIMAL(10,2)))
+      OVER (ORDER BY DTYYYYMMDD) * 100 AS percent_change
+FROM Overall_Index
+ORDER BY DTYYYYMMDD;
+
